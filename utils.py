@@ -36,11 +36,11 @@ def save_model(model, name):
 
 def load_model(name):
     path = Path(f"{MODEL_FOLDER}/{name}.pkl")
-    if path.is_file():
-        model = pd.read_pickle(f"{MODEL_FOLDER}/{name}.pkl")
-    else:
-        model = False
-    return model
+    return (
+        pd.read_pickle(f"{MODEL_FOLDER}/{name}.pkl")
+        if path.is_file()
+        else False
+    )
 
 
 def save_model_config(model_config, model_name):
@@ -72,8 +72,7 @@ def get_biggest_change_features(corrs, n):
     h2_corr_means = corrs.loc[h2_eras, :].mean()
 
     corr_diffs = h2_corr_means - h1_corr_means
-    worst_n = corr_diffs.abs().sort_values(ascending=False).head(n).index.tolist()
-    return worst_n
+    return corr_diffs.abs().sort_values(ascending=False).head(n).index.tolist()
 
 
 def get_time_series_cross_val_splits(data, cv = 3, embargo = 12):
@@ -96,9 +95,7 @@ def get_time_series_cross_val_splits(data, cv = 3, embargo = 12):
                        abs(int(e) - test_split_max) > embargo and abs(int(e) - test_split_min) > embargo]
         train_splits.append(train_split)
 
-    # convenient way to iterate over train and test splits
-    train_test_zip = zip(train_splits, test_splits)
-    return train_test_zip
+    return zip(train_splits, test_splits)
 
 
 def neutralize(df,
@@ -147,8 +144,7 @@ def neutralize_series(series, by, proportion=1.0):
     correction = proportion * (exposures.dot(
         np.linalg.lstsq(exposures, scores, rcond=None)[0]))
     corrected_scores = scores - correction
-    neutralized = pd.Series(corrected_scores.ravel(), index=series.index)
-    return neutralized
+    return pd.Series(corrected_scores.ravel(), index=series.index)
 
 
 def unif(df):

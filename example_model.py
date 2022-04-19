@@ -31,7 +31,10 @@ current_round = napi.get_current_round()
 print('Downloading dataset files...')
 napi.download_dataset("numerai_training_data.parquet", "training_data.parquet")
 napi.download_dataset("numerai_tournament_data.parquet", f"tournament_data_{current_round}.parquet")
-napi.download_dataset("numerai_validation_data.parquet", f"validation_data.parquet")
+napi.download_dataset(
+    "numerai_validation_data.parquet", "validation_data.parquet"
+)
+
 napi.download_dataset("example_validation_predictions.parquet")
 napi.download_dataset("features.json")
 
@@ -63,11 +66,11 @@ riskiest_features = get_biggest_change_features(all_feature_corrs, 50)
 # "garbage collection" (gc) gets rid of unused data and frees up memory
 gc.collect()
 
-model_name = f"model_target"
+model_name = "model_target"
 print(f"Checking for existing model '{model_name}'")
 model = load_model(model_name)
 if not model:
-    print(f"model not found, creating new one")
+    print("model not found, creating new one")
     params = {"n_estimators": 2000,
               "learning_rate": 0.01,
               "max_depth": 5,
@@ -98,7 +101,7 @@ if nans_per_col.any():
     total_rows = len(tournament_data[tournament_data["data_type"] == "live"])
     print(f"Number of nans per column this week: {nans_per_col[nans_per_col > 0]}")
     print(f"out of {total_rows} total rows")
-    print(f"filling nans with 0.5")
+    print("filling nans with 0.5")
     tournament_data.loc[:, features] = tournament_data.loc[:, features].fillna(0.5)
 else:
     print("No nans in the features this week!")
